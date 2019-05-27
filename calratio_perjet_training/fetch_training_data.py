@@ -6,6 +6,9 @@ from adl_func_backend.cpplib.math_utils import DeltaR
 from pandas import DataFrame
 import pandas as pd
 
+import adl_func_backend.xAODlib.atlas_xaod_executor as xaod
+xaod.dump_cpp = True
+
 data_cache = 'G:\\calratio_cache'
 
 class FetchDataException(BaseException):
@@ -75,7 +78,7 @@ def fetch_perjet_data (events: EventDataset, ds_name: str) -> DataFrame:
 
     # If it is signal, we can add a bunch of extra info
     tc.add_col('IsLLP', 'ji[2].Count() > 0')
-    tc.add_col('LLP_Count', 'ji[2].Count()')
+    tc.add_col('nLLPs_Near_Jets', 'ji[2].Count()')
     for c in ['x', 'y', 'z']:
         tc.add_col('L{0}'.format(c), '0 if ji[2].Count() == 0 else abs(ji[2].First().prodVtx().{0}()-ji[2].First().decayVtx().{0}())'.format(c))
 
