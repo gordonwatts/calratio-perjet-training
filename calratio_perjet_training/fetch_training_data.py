@@ -75,6 +75,7 @@ def fetch_perjet_data (events: EventDataset, ds_name: str) -> DataFrame:
 
     tc.add_col('JetPt', 'ji[1].pt()/1000.0')
     tc.add_col('JetEta', 'ji[1].eta()')
+    tc.add_col('JetPhi', 'ji[1].phi()')
 
     # If it is signal, we can add a bunch of extra info
     tc.add_col('IsLLP', 'ji[2].Count() > 0')
