@@ -83,7 +83,7 @@ def fetch_perjet_data (events: EventDataset, ds_name: str) -> DataFrame:
     for c in ['x', 'y', 'z']:
         tc.add_col('L{0}'.format(c), f'0 if ji[2].Count() == 0 else abs(ji[2].First().prodVtx().{c}()-ji[2].First().decayVtx().{c}())')
     for c in ['eta', 'phi']:
-        tc.add_col('L{0}'.format(c), f'0 if ji[2].Count() == 0 else abs(ji[2].First().{c}())')
+        tc.add_col('L{0}'.format(c), f'0 if ji[2].Count() == 0 else ji[2].First().{c}()')
 
 
     # The basic moments for the layer weights.
