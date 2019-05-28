@@ -81,7 +81,10 @@ def fetch_perjet_data (events: EventDataset, ds_name: str) -> DataFrame:
     tc.add_col('IsLLP', 'ji[2].Count() > 0')
     tc.add_col('nLLPs_Near_Jets', 'ji[2].Count()')
     for c in ['x', 'y', 'z']:
-        tc.add_col('L{0}'.format(c), '0 if ji[2].Count() == 0 else abs(ji[2].First().prodVtx().{0}()-ji[2].First().decayVtx().{0}())'.format(c))
+        tc.add_col('L{0}'.format(c), f'0 if ji[2].Count() == 0 else abs(ji[2].First().prodVtx().{c}()-ji[2].First().decayVtx().{c}())')
+    for c in ['eta', 'phi']:
+        tc.add_col('L{0}'.format(c), f'0 if ji[2].Count() == 0 else abs(ji[2].First().{c}())')
+
 
     # The basic moments for the layer weights.
     add_sampling_layer ('EMM_BL0', 0, tc)
