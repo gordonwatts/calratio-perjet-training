@@ -6,6 +6,7 @@ from adl_func_backend.cpplib.math_utils import DeltaR
 from pandas import DataFrame
 import pandas as pd
 
+from adl_func_backend.dataset_resolvers.gridds import use_executor_dataset_resolver
 import adl_func_backend.xAODlib.atlas_xaod_executor as xaod
 xaod.dump_cpp = True
 
@@ -130,7 +131,7 @@ def fetch_perjet_data (events: EventDataset, ds_name: str) -> DataFrame:
     # Put it all together and turn it into a set of ROOT files (for now):
     ds = tuple_data \
         .AsPandasDF(tc.col_names) \
-        .value()
+        .value(executor=use_executor_dataset_resolver)
 
     # Next, save it in the cache.
     ds.to_pickle(cache_filename)
