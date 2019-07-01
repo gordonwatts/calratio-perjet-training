@@ -6,16 +6,14 @@ from adl_func_backend.cpplib.math_utils import DeltaR
 from pandas import DataFrame
 import pandas as pd
 
-from adl_func_backend.dataset_resolvers.gridds import use_executor_dataset_resolver
+from adl_func_client.use_exe_func_adl_server import use_exe_func_adl_server
 import adl_func_backend.xAODlib.atlas_xaod_executor as xaod
 xaod.dump_cpp = True
-
-data_cache = 'G:\\calratio_cache'
 
 class FetchDataException(BaseException):
     'Thrown when there is a config or similar error getting the data'
     def __init__(self, msg):
-        BaseException.__init__(msg)
+        BaseException.__init__(self, msg)
 
 class track_columns:
     r'''
@@ -54,14 +52,6 @@ def fetch_perjet_data (events: EventDataset, ds_name: str) -> DataFrame:
         ds_name         The name of the dataset (used for caching)
     '''
 
-    # Make sure the cache exists.
-    if not os.path.exists(data_cache):
-        raise FetchDataException(f"Unable to locate cache direcotry {data_cache}!")
-
-    cache_filename = f'{data_cache}/{ds_name}.pickle'
-    if os.path.exists(cache_filename):
-        return pd.read_pickle(cache_filename)
-    
     # Track basic event info, jets, and LLP particles.
     event_info = events \
         .Select("lambda e: (e.EventInfo('EventInfo'), e.Jets('AntiKt4EMTopoJets'), e.TruthParticles('TruthParticles').Where(lambda tp1: tp1.pdgId() == 35))")
@@ -131,8 +121,6 @@ def fetch_perjet_data (events: EventDataset, ds_name: str) -> DataFrame:
     # Put it all together and turn it into a set of ROOT files (for now):
     ds = tuple_data \
         .AsPandasDF(tc.col_names) \
-        .value(executor=use_executor_dataset_resolver)
+        .value(executor=lambda a: use_exe_func_adl_server(a, quiet=False))
 
-    # Next, save it in the cache.
-    ds.to_pickle(cache_filename)
     return ds
