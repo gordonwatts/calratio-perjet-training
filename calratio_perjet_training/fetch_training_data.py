@@ -43,7 +43,7 @@ def add_sampling_layer(name, index, tc):
     tc.add_col(name, 'ji[1].getAttributeVectorFloat("EnergyPerSampling")[{0}]/(ji[1].getAttributeVectorFloat("EnergyPerSampling").Sum())'.format(index))
 
 
-def fetch_perjet_data (events: EventDataset, ds_name: str) -> DataFrame:
+async def fetch_perjet_data (events: EventDataset, ds_name: str) -> DataFrame:
     r'''
     Return back the training data for a particular dataset
 
@@ -119,8 +119,8 @@ def fetch_perjet_data (events: EventDataset, ds_name: str) -> DataFrame:
         .Where('lambda jc: (jc[{0}] > 40.0) and (abs(jc[{1}]) < 2.5)'.format(tc.col_index('JetPt'), tc.col_index('JetEta')))
 
     # Put it all together and turn it into a set of ROOT files (for now):
-    ds = tuple_data \
+    ds = await tuple_data \
         .AsPandasDF(tc.col_names) \
-        .value(executor=lambda a: use_exe_func_adl_server(a, quiet=False))
+        .future_value(executor=lambda a: use_exe_func_adl_server(a))
 
     return ds
