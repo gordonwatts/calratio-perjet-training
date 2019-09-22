@@ -73,7 +73,7 @@ async def fetch_perjet_data (events: EventDataset, ds_name: str) -> DataFrame:
     tc.add_col('nLLPs_Near_Jets', 'ji[2].Count()')
     for c in ['x', 'y', 'z']:
         tc.add_col('L{0}'.format(c), f'0 if ji[2].Count() == 0 else abs(ji[2].First().prodVtx().{c}()-ji[2].First().decayVtx().{c}())')
-    for c in ['eta', 'phi']:
+    for c in ['eta', 'phi', 'pt', 'pz']:
         tc.add_col('L{0}'.format(c), f'0 if ji[2].Count() == 0 else ji[2].First().{c}()')
 
 
