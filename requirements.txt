@@ -1,0 +1,2 @@
+keras>=2.2.4
+https://github.com/gordonwatts/functional_adl/releases/download/1.0.0-alpha.10/functional_adl-1.0.0a10-py3-none-any.whl
