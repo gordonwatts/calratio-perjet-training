@@ -1,14 +1,12 @@
 # Contains code needed to fetch the jet data training sets
 import sys
 import os
-from adl_func_client.event_dataset import EventDataset
-from adl_func_backend.cpplib.math_utils import DeltaR
+from func_adl import EventDataset
+#from adl_func_backend.cpplib.math_utils import DeltaR
 from pandas import DataFrame
 import pandas as pd
 
-from adl_func_client.use_exe_func_adl_server import use_exe_func_adl_server
-import adl_func_backend.xAODlib.atlas_xaod_executor as xaod
-xaod.dump_cpp = True
+from func_adl.xAOD import use_exe_func_adl_server
 
 class FetchDataException(BaseException):
     'Thrown when there is a config or similar error getting the data'
@@ -49,7 +47,10 @@ async def fetch_perjet_data (events: EventDataset, ds_name: str) -> DataFrame:
 
     Arguments:
         events             Event Dataset to process
-        ds_name         The name of the dataset (used for caching)
+        ds_name            The name of the dataset (used for caching)
+        endpoint           The end point we are going to connect to.
+        jet_pt_cut         Minimum jet pt cut. 40 GeV
+        deltar_llp         What deltar cut should we be using
     '''
 
     # Track basic event info, jets, and LLP particles.
@@ -121,6 +122,6 @@ async def fetch_perjet_data (events: EventDataset, ds_name: str) -> DataFrame:
     # Put it all together and turn it into a set of ROOT files (for now):
     ds = await tuple_data \
         .AsPandasDF(tc.col_names) \
-        .future_value(executor=lambda a: use_exe_func_adl_server(a))
+        .future_value(executor=lambda a: use_exe_func_adl_server(a, node=endpoint))
 
     return ds
