@@ -41,7 +41,7 @@ def add_sampling_layer(name, index, tc):
     tc.add_col(name, 'ji[1].getAttributeVectorFloat("EnergyPerSampling")[{0}]/(ji[1].getAttributeVectorFloat("EnergyPerSampling").Sum())'.format(index))
 
 
-async def fetch_perjet_data (events: EventDataset, ds_name: str) -> DataFrame:
+async def fetch_perjet_data (events: EventDataset, ds_name: str, endpoint: str, jet_pt_cut: float = 40.0, deltar_llp: float = 0.4) -> DataFrame:
     r'''
     Return back the training data for a particular dataset
 
@@ -58,7 +58,7 @@ async def fetch_perjet_data (events: EventDataset, ds_name: str) -> DataFrame:
         .Select("lambda e: (e.EventInfo('EventInfo'), e.Jets('AntiKt4EMTopoJets'), e.TruthParticles('TruthParticles').Where(lambda tp1: tp1.pdgId() == 35))")
     # For the jet, grab the event info and the first LLP that is within 0.4 of the guy.
     jet_info = event_info \
-        .SelectMany('lambda ev: ev[1].Select(lambda j1: (ev[0], j1, ev[2].Where(lambda tp2: DeltaR(tp2.eta(), tp2.phi(), j1.eta(), j1.phi()) < 0.4)))')
+        .SelectMany(f'lambda ev: ev[1].Select(lambda j1: (ev[0], j1, ev[2].Where(lambda tp2: DeltaR(tp2.eta(), tp2.phi(), j1.eta(), j1.phi()) < {deltar_llp})))')
 
     # Build us a list of columns
     tc = track_columns()
@@ -117,7 +117,7 @@ async def fetch_perjet_data (events: EventDataset, ds_name: str) -> DataFrame:
     # TODO: Add cut on clean LLP jet
     tuple_data = jet_info \
         .Select('lambda ji: ' + tc.gen_tuple()) \
-        .Where('lambda jc: (jc[{0}] > 40.0) and (abs(jc[{1}]) < 2.5)'.format(tc.col_index('JetPt'), tc.col_index('JetEta')))
+        .Where('lambda jc: (jc[{0}] > {2}) and (abs(jc[{1}]) < 2.5)'.format(tc.col_index('JetPt'), tc.col_index('JetEta'), jet_pt_cut))
 
     # Put it all together and turn it into a set of ROOT files (for now):
     ds = await tuple_data \
